@@ -64,17 +64,21 @@ describe KakurenboPuti::ActiveRecordBase do
   end
 
   describe '.soft_delete_column' do
+    # soft_deletable に引数を指定しない場合
     context "No option is passed as an argument of 'soft_deletable'" do
+      # 論理削除の対象となるデフォルトのカラム名を返す
       it 'returns default column name to be soft-deleted' do
         expect(model_class.soft_delete_column).to eq(:soft_destroyed_at)
       end
     end
 
+    # soft_deletable の引数にオプション 'column' が指定されている場合
     context "when the option 'column' is present and the option is passed as an argument of 'soft_deletable'" do
       let :model_class_options do
         { column: :deleted_at }
       end
 
+      # オプションに指定されているカラム名を返す
       it 'returns column name given to option' do
         expect(model_class.soft_delete_column).to eq(:deleted_at)
       end
@@ -82,17 +86,21 @@ describe KakurenboPuti::ActiveRecordBase do
   end
 
   describe '#soft_delete_column' do
+    # soft_deletable に引数を指定しない場合
     context "No option is passed as an argument of 'soft_deletable'" do
+      # 論理削除の対象となるデフォルトのカラム名を返す
       it 'returns default column name to be soft-deleted' do
         expect(model_instance.soft_delete_column).to eq(:soft_destroyed_at)
       end
     end
 
+    # soft_deletable の引数にオプション 'column' が指定されている場合
     context "when the option 'column' is present and the option is passed as an argument of 'soft_deletable'" do
       let :model_class_options do
         { column: :deleted_at }
       end
 
+      # オプションに指定されているカラム名を返す
       it 'returns column name given to option' do
         expect(model_instance.soft_delete_column).to eq(:deleted_at)
       end
@@ -100,17 +108,21 @@ describe KakurenboPuti::ActiveRecordBase do
   end
 
   describe '#soft_delete_column' do
+    # soft_deletable に引数を指定しない場合
     context "No option is passed as an argument of 'soft_deletable'" do
+      # 論理削除の対象となるデフォルトのカラム名を返す
       it 'returns default column name to be soft-deleted' do
         expect(model_instance.soft_delete_column).to eq(:soft_destroyed_at)
       end
     end
 
+    # soft_deletable の引数にオプション 'column' が指定されている場合
     context "when the option 'column' is present and the option is passed as an argument of 'soft_deletable'" do
       let :model_class_options do
         { column: :deleted_at }
       end
 
+      # オプションに指定されているカラム名を返す
       it 'returns column name given to option' do
         expect(model_instance.soft_delete_column).to eq(:deleted_at)
       end
@@ -122,6 +134,7 @@ describe KakurenboPuti::ActiveRecordBase do
       child_class.only_soft_destroyed
     end
 
+    # 論理削除されているレコードのみのリレーションを返す
     it 'returns a relation only with soft-deleted records.' do
       expect {
         child_instance.soft_destroy!
@@ -130,8 +143,12 @@ describe KakurenboPuti::ActiveRecordBase do
       }.by(1)
     end
 
+    # 親レコードが論理削除されている場合
     context 'When the instance of parent_class is soft-deleted' do
+      # soft_deletable に引数が指定されていない場合
       context "No option is passed as an argument of 'soft_deletable'" do
+        # 論理削除されているレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードも含む．
         it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are included.' do
           expect {
             child_instance.soft_delete_model.soft_destroy!
@@ -141,11 +158,14 @@ describe KakurenboPuti::ActiveRecordBase do
         end
       end
 
+      # soft_deletable の引数にオプション 'dependent_associations' が指定されていて，空の配列である場合
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
         let :child_class_options do
           { dependent_associations: [] }
         end
 
+        # 論理削除されているレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードも含む．
         it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are not included.' do
           expect {
             child_instance.soft_delete_model.soft_destroy!
@@ -156,8 +176,12 @@ describe KakurenboPuti::ActiveRecordBase do
       end
     end
 
+    # 親レコードが物理削除されている場合
     context 'When the instance of parent_class is hard-deleted' do
+      # soft_deletable に引数が指定されていない場合
       context "No option is passed as an argument of 'soft_deletable'" do
+        # 論理削除されているレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードも含む．
         it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are included.' do
           expect {
             child_instance.normal_model.destroy!
@@ -167,11 +191,14 @@ describe KakurenboPuti::ActiveRecordBase do
         end
       end
 
+      # soft_deletable の引数にオプション 'dependent_associations' が指定されていて，空の配列である場合
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
         let :child_class_options do
           { dependent_associations: [] }
         end
 
+        # 論理削除されているレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードは含まない．
         it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are not included.' do
           expect {
             child_instance.normal_model.destroy!
@@ -184,6 +211,7 @@ describe KakurenboPuti::ActiveRecordBase do
   end
 
   describe '.without_soft_destroyed' do
+    # soft_deletable の引数にオプション 'dependent_associations' が指定されていて，has_many に指定されているリレーションの名称が含まれる場合
     context "when the option 'dependent_associations' is an array and an association name as an argument of `has_many` is included" do
       subject do
         model_class.without_soft_destroyed
@@ -193,6 +221,7 @@ describe KakurenboPuti::ActiveRecordBase do
         { dependent_associations: [:soft_delete_children] }
       end
 
+      # RuntimeError が発生する
       it 'raises RuntimeError' do
         expect { subject }.to raise_error(RuntimeError) do |e|
           expect(e.message).to eq('dependent association is usable only in `belongs_to`.')
@@ -204,6 +233,7 @@ describe KakurenboPuti::ActiveRecordBase do
       child_class.without_soft_destroyed
     end
 
+    # 論理削除されていないレコードのみのリレーションを返す．
     it 'returns a relation without soft-deleted records.' do
       expect {
         child_instance.soft_destroy!
@@ -212,8 +242,12 @@ describe KakurenboPuti::ActiveRecordBase do
       }.by(-1)
     end
 
+    # 親レコードが論理削除されている場合
     context 'When the instance of parent_class is soft-deleted' do
+      # soft_deletable に引数が指定されていない場合
       context "No option is passed as an argument of 'soft_deletable'" do
+        # 論理削除されていないレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードは含まない．
         it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are not included.' do
           expect {
             child_instance.soft_delete_model.soft_destroy!
@@ -223,11 +257,14 @@ describe KakurenboPuti::ActiveRecordBase do
         end
       end
 
+      # soft_deletable の引数にオプション 'dependent_associations' が指定されていて，空の配列である場合
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
         let :child_class_options do
           { dependent_associations: [] }
         end
 
+        # 論理削除されていないレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードも含む．
         it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are included.' do
           expect {
             child_instance.soft_delete_model.soft_destroy!
@@ -238,8 +275,12 @@ describe KakurenboPuti::ActiveRecordBase do
       end
     end
 
+    # 親レコードが物理削除されている場合
     context 'When the instance of parent_class is hard-deleted' do
+      # soft_deletable に引数が指定されていない場合
       context "No option is passed as an argument of 'soft_deletable'" do
+        # 論理削除されていないレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードは含まない．
         it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are not included.' do
           expect {
             child_instance.normal_model.destroy!
@@ -249,11 +290,14 @@ describe KakurenboPuti::ActiveRecordBase do
         end
       end
 
+      # soft_deletable の引数にオプション 'dependent_associations' が指定されていて，空の配列である場合
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
         let :child_class_options do
           { dependent_associations: [] }
         end
 
+        # 論理削除されていないレコードのみのリレーションを返す．
+        # 親レコードが論理削除されているレコードも含む．
         it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are included.' do
           expect {
             child_instance.normal_model.destroy!
