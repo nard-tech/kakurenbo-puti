@@ -81,6 +81,42 @@ describe KakurenboPuti::ActiveRecordBase do
     end
   end
 
+  describe '#soft_delete_column' do
+    context "No option is passed as an argument of 'soft_deletable'" do
+      it 'returns default column name to be soft-deleted' do
+        expect(model_instance.soft_delete_column).to eq(:soft_destroyed_at)
+      end
+    end
+
+    context "when the option 'column' is present and the option is passed as an argument of 'soft_deletable'" do
+      let :model_class_options do
+        { column: :deleted_at }
+      end
+
+      it 'returns column name given to option' do
+        expect(model_instance.soft_delete_column).to eq(:deleted_at)
+      end
+    end
+  end
+
+  describe '#soft_delete_column' do
+    context "No option is passed as an argument of 'soft_deletable'" do
+      it 'returns default column name to be soft-deleted' do
+        expect(model_instance.soft_delete_column).to eq(:soft_destroyed_at)
+      end
+    end
+
+    context "when the option 'column' is present and the option is passed as an argument of 'soft_deletable'" do
+      let :model_class_options do
+        { column: :deleted_at }
+      end
+
+      it 'returns column name given to option' do
+        expect(model_instance.soft_delete_column).to eq(:deleted_at)
+      end
+    end
+  end
+
   describe '.only_soft_destroyed' do
     subject do
       child_class.only_soft_destroyed
@@ -269,6 +305,15 @@ describe KakurenboPuti::ActiveRecordBase do
       model_instance.restore!
     end
 
+    it 'returns truethy value.' do
+      expect(subject).to be_truthy
+    end
+
+    it 'runs callbacks.' do
+      expect(model_instance).to receive(:cb_mock).twice
+      subject
+    end
+
     context 'When an exception is raised.' do
       before :each do
         allow_any_instance_of(model_class).to receive(:update_column) { raise }
@@ -316,6 +361,15 @@ describe KakurenboPuti::ActiveRecordBase do
   describe '#soft_destroy!' do
     subject do
       model_instance.soft_destroy!
+    end
+
+    it 'returns truethy value.' do
+      expect(subject).to be_truthy
+    end
+
+    it 'runs callbacks.' do
+      expect(model_instance).to receive(:cb_mock).twice
+      subject
     end
 
     context 'When an exception is raised.' do
