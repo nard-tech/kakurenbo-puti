@@ -64,8 +64,10 @@ describe KakurenboPuti::ActiveRecordBase do
   end
 
   describe '.soft_delete_column' do
-    it 'returns default column name to be soft-deleted' do
-      expect(model_class.soft_delete_column).to eq(:soft_destroyed_at)
+    context "No option is passed as an argument of 'soft_deletable'" do
+      it 'returns default column name to be soft-deleted' do
+        expect(model_class.soft_delete_column).to eq(:soft_destroyed_at)
+      end
     end
 
     context "when the option 'column' is present and the option is passed as an argument of 'soft_deletable'" do
@@ -74,7 +76,7 @@ describe KakurenboPuti::ActiveRecordBase do
       end
 
       it 'returns column name given to option' do
-        expect(model_class.soft_delete_column).to eq(model_class_options[:column])
+        expect(model_class.soft_delete_column).to eq(:deleted_at)
       end
     end
   end
@@ -84,23 +86,23 @@ describe KakurenboPuti::ActiveRecordBase do
       child_class.only_soft_destroyed
     end
 
-    context 'When soft-deleted' do
-      it 'returns a relation only with soft-deleted records.' do
-        expect {
-          child_instance.soft_destroy!
-        }.to change {
-          subject.count
-        }.by(1)
-      end
+    it 'returns a relation only with soft-deleted records.' do
+      expect {
+        child_instance.soft_destroy!
+      }.to change {
+        subject.count
+      }.by(1)
     end
 
     context 'When the instance of parent_class is soft-deleted' do
-      it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are included.' do
-        expect {
-          child_instance.soft_delete_model.soft_destroy!
-        }.to change {
-          subject.count
-        }.by(1)
+      context "No option is passed as an argument of 'soft_deletable'" do
+        it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are included.' do
+          expect {
+            child_instance.soft_delete_model.soft_destroy!
+          }.to change {
+            subject.count
+          }.by(1)
+        end
       end
 
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
@@ -119,12 +121,14 @@ describe KakurenboPuti::ActiveRecordBase do
     end
 
     context 'When the instance of parent_class is hard-deleted' do
-      it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are included.' do
-        expect {
-          child_instance.normal_model.destroy!
-        }.to change {
-          subject.count
-        }.by(1)
+      context "No option is passed as an argument of 'soft_deletable'" do
+        it 'returns a relation only with soft-deleted records. Records of which parents are soft-deleted are included.' do
+          expect {
+            child_instance.normal_model.destroy!
+          }.to change {
+            subject.count
+          }.by(1)
+        end
       end
 
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
@@ -162,23 +166,23 @@ describe KakurenboPuti::ActiveRecordBase do
       end
     end
 
-    context 'When soft-deleted' do
-      it 'returns a relation without soft-deleted records.' do
-        expect {
-          child_instance.soft_destroy!
-        }.to change {
-          subject.count
-        }.by(-1)
-      end
+    it 'returns a relation without soft-deleted records.' do
+      expect {
+        child_instance.soft_destroy!
+      }.to change {
+        subject.count
+      }.by(-1)
     end
 
     context 'When the instance of parent_class is soft-deleted' do
-      it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are not included.' do
-        expect {
-          child_instance.soft_delete_model.soft_destroy!
-        }.to change {
-          subject.count
-        }.by(-1)
+      context "No option is passed as an argument of 'soft_deletable'" do
+        it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are not included.' do
+          expect {
+            child_instance.soft_delete_model.soft_destroy!
+          }.to change {
+            subject.count
+          }.by(-1)
+        end
       end
 
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
@@ -197,12 +201,14 @@ describe KakurenboPuti::ActiveRecordBase do
     end
 
     context 'When the instance of parent_class is hard-deleted' do
-      it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are not included.' do
-        expect {
-          child_instance.normal_model.destroy!
-        }.to change {
-          subject.count
-        }.by(-1)
+      context "No option is passed as an argument of 'soft_deletable'" do
+        it 'returns a relation without soft-deleted records. Records of which parents are soft-deleted are not included.' do
+          expect {
+            child_instance.normal_model.destroy!
+          }.to change {
+            subject.count
+          }.by(-1)
+        end
       end
 
       context "when the option 'dependent_associations' is an empty array and the option is passed as an argument of 'soft_deletable'" do
@@ -307,14 +313,14 @@ describe KakurenboPuti::ActiveRecordBase do
     end
   end
 
-  describe '#soft_delete!' do
+  describe '#soft_destroy!' do
     subject do
-      model_instance.soft_delete!
+      model_instance.soft_destroy!
     end
 
     context 'When an exception is raised.' do
       before :each do
-        allow_any_instance_of(model_class).to receive(:update_column) { raise }
+        allow_any_instance_of(model_class).to receive(:touch) { raise }
       end
 
       it 'raises an error.' do
