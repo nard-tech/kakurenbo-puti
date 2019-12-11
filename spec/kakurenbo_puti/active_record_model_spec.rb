@@ -6,7 +6,7 @@ describe '#define_active_record_model' do
   end
 
   it 'creates class Drink.' do
-    expect(Object.const_defined? :Drink).to be_truthy
+    expect(Object.const_defined? :Drink).to be(true)
   end
 
   it 'has methods of ActiveRecord.' do

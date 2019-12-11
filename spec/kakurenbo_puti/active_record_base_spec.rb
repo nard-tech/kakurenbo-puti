@@ -184,10 +184,6 @@ describe KakurenboPuti::ActiveRecordBase do
   end
 
   describe '.without_soft_destroyed' do
-    subject do
-      child_class.without_soft_destroyed
-    end
-
     context "when the option 'dependent_associations' is an array and an association name as an argument of `has_many` is included" do
       subject do
         model_class.without_soft_destroyed
@@ -197,9 +193,15 @@ describe KakurenboPuti::ActiveRecordBase do
         { dependent_associations: [:soft_delete_children] }
       end
 
-      it 'raises error' do
-        expect { subject }.to raise_error
+      it 'raises RuntimeError' do
+        expect { subject }.to raise_error(RuntimeError) do |e|
+          expect(e.message).to eq('dependent association is usable only in `belongs_to`.')
+        end
       end
+    end
+
+    subject do
+      child_class.without_soft_destroyed
     end
 
     it 'returns a relation without soft-deleted records.' do
@@ -280,8 +282,8 @@ describe KakurenboPuti::ActiveRecordBase do
       }.by(1)
     end
 
-    it 'returns truethy value.' do
-      expect(subject).to be_truthy
+    it 'returns true' do
+      expect(subject).to be(true)
     end
 
     it 'runs callbacks.' do
@@ -289,13 +291,13 @@ describe KakurenboPuti::ActiveRecordBase do
       subject
     end
 
-    context 'When an exception is raised.' do
+    context 'When ActiveRecord::ActiveRecordError is raised in #update_column.' do
       before :each do
-        allow_any_instance_of(model_class).to receive(:update_column) { raise }
+        allow_any_instance_of(model_class).to receive(:update_column) { raise ActiveRecord::ActiveRecordError }
       end
 
-      it 'returns falsey value.' do
-        expect(subject).to be_falsey
+      it 'returns false' do
+        expect(subject).to be(false)
       end
     end
   end
@@ -305,8 +307,8 @@ describe KakurenboPuti::ActiveRecordBase do
       model_instance.restore!
     end
 
-    it 'returns truethy value.' do
-      expect(subject).to be_truthy
+    it 'returns self' do
+      expect(subject).to eq(model_instance)
     end
 
     it 'runs callbacks.' do
@@ -314,13 +316,13 @@ describe KakurenboPuti::ActiveRecordBase do
       subject
     end
 
-    context 'When an exception is raised.' do
+    context 'When ActiveRecord::ActiveRecordError is raised in #update_column.' do
       before :each do
-        allow_any_instance_of(model_class).to receive(:update_column) { raise }
+        allow_any_instance_of(model_class).to receive(:update_column) { raise ActiveRecord::ActiveRecordError }
       end
 
-      it 'raises an error.' do
-        expect{ subject }.to raise_error
+      it 'raises ActiveRecord::ActiveRecordError.' do
+        expect{ subject }.to raise_error(ActiveRecord::ActiveRecordError)
       end
     end
   end
@@ -338,8 +340,8 @@ describe KakurenboPuti::ActiveRecordBase do
       }.by(-1)
     end
 
-    it 'returns truethy value.' do
-      expect(subject).to be_truthy
+    it 'returns true' do
+      expect(subject).to be(true)
     end
 
     it 'runs callbacks.' do
@@ -347,13 +349,13 @@ describe KakurenboPuti::ActiveRecordBase do
       subject
     end
 
-    context 'When an exception is raised.' do
+    context 'When an exception is raised in #touch.' do
       before :each do
-        allow_any_instance_of(model_class).to receive(:touch) { raise }
+        allow_any_instance_of(model_class).to receive(:touch) { raise ActiveRecord::ActiveRecordError }
       end
 
-      it 'returns falsey value.' do
-        expect(subject).to be_falsey
+      it 'returns false' do
+        expect(subject).to be(false)
       end
     end
   end
@@ -363,8 +365,8 @@ describe KakurenboPuti::ActiveRecordBase do
       model_instance.soft_destroy!
     end
 
-    it 'returns truethy value.' do
-      expect(subject).to be_truthy
+    it 'returns self.' do
+      expect(subject).to eq(model_instance)
     end
 
     it 'runs callbacks.' do
@@ -372,13 +374,13 @@ describe KakurenboPuti::ActiveRecordBase do
       subject
     end
 
-    context 'When an exception is raised.' do
+    context 'When ActiveRecord::ActiveRecordErrorn is raised in #touch.' do
       before :each do
-        allow_any_instance_of(model_class).to receive(:touch) { raise }
+        allow_any_instance_of(model_class).to receive(:touch) { raise ActiveRecord::ActiveRecordError }
       end
 
-      it 'raises an error.' do
-        expect{ subject }.to raise_error
+      it 'raises ActiveRecordError.' do
+        expect{ subject }.to raise_error(ActiveRecord::ActiveRecordError)
       end
     end
   end
@@ -388,8 +390,8 @@ describe KakurenboPuti::ActiveRecordBase do
       model_instance.soft_destroyed?
     end
 
-    it 'returns falsey value' do
-      expect(subject).to be_falsey
+    it 'returns false' do
+      expect(subject).to be(false)
     end
 
     context 'When model is soft-deleted' do
@@ -397,8 +399,8 @@ describe KakurenboPuti::ActiveRecordBase do
         model_instance.soft_destroy!
       end
 
-      it 'returns truthy value' do
-        expect(subject).to be_truthy
+      it 'returns true' do
+        expect(subject).to be(true)
       end
     end
   end
